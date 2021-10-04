@@ -1,9 +1,11 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"net"
+	"os"
 	"strings"
 )
 
@@ -25,7 +27,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("Sending STUN request to %v", serverTypedAddr)
+	fmt.Printf("Sending STUN request to %v\n", serverTypedAddr)
 	_, err = ser.WriteToUDP([]byte(*token), serverTypedAddr)
 	if err != nil {
 		panic(err)
@@ -53,16 +55,36 @@ func main() {
 		panic(err)
 	}
 
-	_, err = ser.WriteToUDP([]byte(fmt.Sprintf("hello from %v", localAddr)), remoteAddr)
+	_, err = ser.WriteToUDP([]byte(fmt.Sprintf("Connected to host at %v", localAddr)), remoteAddr)
 	if err != nil {
 		panic(err)
 	}
 
-	for {
-		_, _, err := ser.ReadFromUDP(p)
-		if err != nil {
-			panic(err)
+	go func() {
+		for {
+			_, _, err := ser.ReadFromUDP(p)
+			if err != nil {
+				panic(err)
+			}
+			fmt.Printf("%s\n", p)
 		}
-		fmt.Printf("%s\n", p)
+	}()
+
+	go func() {
+		for {
+			reader := bufio.NewReader(os.Stdin)
+			text, err := reader.ReadString('\n')
+			if err != nil {
+				panic(err)
+			}
+			text = strings.Replace(text, "\n", "", -1)
+			_, err = ser.WriteToUDP([]byte(text), remoteAddr)
+			if err != nil {
+				panic(err)
+			}
+		}
+	}()
+
+	for {
 	}
 }
