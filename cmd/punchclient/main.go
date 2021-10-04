@@ -62,22 +62,22 @@ func main() {
 
 	go func() {
 		for {
-			_, _, err := ser.ReadFromUDP(p)
+			n, _, err := ser.ReadFromUDP(p)
 			if err != nil {
 				panic(err)
 			}
-			fmt.Printf("%s\n", p)
+			fmt.Printf("%s\n", p[:n])
 		}
 	}()
 
 	go func() {
+		reader := bufio.NewReader(os.Stdin)
 		for {
-			reader := bufio.NewReader(os.Stdin)
 			text, err := reader.ReadString('\n')
 			if err != nil {
 				panic(err)
 			}
-			text = strings.Replace(text, "\n", "", -1)
+			text = strings.TrimSpace(text)
 			_, err = ser.WriteToUDP([]byte(text), remoteAddr)
 			if err != nil {
 				panic(err)
