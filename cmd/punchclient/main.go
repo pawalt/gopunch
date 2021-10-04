@@ -11,9 +11,10 @@ var token = flag.String("token", "test", "token to use for matching up pairs")
 var serverAddr = flag.String("serverAddr", "127.0.0.1:1338", "stun server to connect to")
 
 func main() {
+	flag.Parse()
 	p := make([]byte, 2048)
 	addr := net.UDPAddr{
-		IP: net.ParseIP("127.0.0.1"),
+		IP: net.ParseIP("0.0.0.0"),
 	}
 	ser, err := net.ListenUDP("udp", &addr)
 	if err != nil {
@@ -24,6 +25,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	fmt.Printf("Sending STUN request to %v", serverTypedAddr)
 	_, err = ser.WriteToUDP([]byte(*token), serverTypedAddr)
 	if err != nil {
 		panic(err)
