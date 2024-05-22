@@ -85,6 +85,5 @@ func main() {
 		}
 	}()
 
-	for {
-	}
+	select {}
 }
